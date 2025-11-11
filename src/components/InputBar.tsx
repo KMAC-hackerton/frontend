@@ -30,6 +30,8 @@ const InputBar = () => {
         setDestination,
         setVesselType,
         setVesselSize,
+        generateResults,
+        loading,
     } = useInputBarContext()
 
     const handleSelectChange = (setter: (value: string) => void) => (event: SelectChangeEvent<string>) => {
@@ -120,8 +122,13 @@ const InputBar = () => {
                     </Stack>
                 </Stack>
                 <Divider />
-                <Button variant="contained" size="large">
-                    Generate
+                <Button
+                    variant="contained"
+                    size="large"
+                    onClick={generateResults}
+                    disabled={loading}
+                >
+                    {loading ? 'Generating...' : 'Generate'}
                 </Button>
             </Stack>
         </Box>

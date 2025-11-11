@@ -1,0 +1,28 @@
+{
+    "metrics": [
+        {
+            "id": "co2e",
+            "metric": "CO2e (proxy)",
+            "value": 231747.42,
+            "share": 98.21
+        },
+        {
+            "id": "black-carbon",
+            "metric": "Black Carbon (proxy)",
+            "value": 207.7,
+            "share": 0.09
+        },
+        {
+            "id": "underwater-noise",
+            "metric": "Underwater Noise",
+            "value": 1614.52,
+            "share": 0.69
+        },
+        {
+            "id": "risk",
+            "metric": "Risk (unitless)",
+            "value": 22.17,
+            "share": 0.01
+        }
+    ]
+}

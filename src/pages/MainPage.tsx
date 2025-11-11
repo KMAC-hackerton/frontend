@@ -1,5 +1,6 @@
 import { Box } from '@mui/material'
 import InputBar from '../components/InputBar'
+import ResultsDisplay from '../components/ResultsDisplay'
 
 
 const MainPage = () => {
@@ -12,6 +13,7 @@ const MainPage = () => {
             }}
         >
             <InputBar />
+            <ResultsDisplay />
         </Box>
     )
 }

@@ -1,3 +1,4 @@
+import { fetchPrediction, type RouteMetric } from '../api/predict'
 import { DEFAULT_WEIGHT_VALUES, type WeightKey } from '../constants/inputBar'
 import {
 	createContext,
@@ -24,12 +25,15 @@ export interface InputBarState {
 }
 
 interface InputBarContextValue extends InputBarState {
+	metrics: RouteMetric[]
+	loading: boolean
 	setDeparture: (value: string) => void
 	setDestination: (value: string) => void
 	setVesselType: (value: string) => void
 	setVesselSize: (value: string) => void
 	setWeight: (key: WeightKey, value: number) => void
 	resetInputs: () => void
+	generateResults: () => Promise<void>
 }
 
 const DEFAULT_STATE: InputBarState = {
@@ -44,6 +48,8 @@ const InputBarContext = createContext<InputBarContextValue | undefined>(undefine
 
 export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 	const [state, setState] = useState<InputBarState>(DEFAULT_STATE)
+	const [metrics, setMetrics] = useState<RouteMetric[]>([])
+	const [loading, setLoading] = useState(false)
 
 	const setDeparture = useCallback((value: string) => {
 		setState((prev) => ({ ...prev, departure: value }))
@@ -71,21 +77,44 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 		}))
 	}, [])
 
+	const generateResults = useCallback(async () => {
+		if (loading) {
+			return
+		}
+		try {
+			setLoading(true)
+			const data = await fetchPrediction()
+			setMetrics(data.metrics)
+		} catch (error) {
+			console.error(error)
+			setMetrics([])
+		} finally {
+			setLoading(false)
+		}
+	}, [loading, setLoading, setMetrics])
+
 	const resetInputs = useCallback(() => {
-		setState(DEFAULT_STATE)
-	}, [])
+		setState({
+			...DEFAULT_STATE,
+			weights: { ...DEFAULT_WEIGHT_VALUES },
+		})
+		setMetrics([])
+	}, [setState, setMetrics])
 
 	const contextValue = useMemo<InputBarContextValue>(
 		() => ({
 			...state,
+			metrics,
+			loading,
 			setDeparture,
 			setDestination,
 			setVesselType,
 			setVesselSize,
 			setWeight,
 			resetInputs,
+			generateResults,
 		}),
-		[state, setDeparture, setDestination, setVesselType, setVesselSize, setWeight, resetInputs],
+		[state, metrics, loading, setDeparture, setDestination, setVesselType, setVesselSize, setWeight, resetInputs, generateResults],
 	)
 
 	return <InputBarContext.Provider value={contextValue}>{children}</InputBarContext.Provider>
