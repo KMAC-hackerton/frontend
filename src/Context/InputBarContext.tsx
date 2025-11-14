@@ -16,10 +16,10 @@ export interface InputBarWeights {
 }
 
 export interface InputBarState {
-	departure_lat: number
-	departure_lon: number
-	destination_lat: number
-	destination_lon: number
+	departure_lat: string
+	departure_lon: string
+	destination_lat: string
+	destination_lon: string
 	iceClass: string
 	fuelType: string
 	weights: InputBarWeights
@@ -28,10 +28,10 @@ export interface InputBarState {
 interface InputBarContextValue extends InputBarState {
 	metrics: RouteMetric[]
 	loading: boolean
-	setDepartureLat: (value: number) => void
-	setDepartureLon: (value: number) => void
-	setDestinationLat: (value: number) => void
-	setDestinationLon: (value: number) => void
+	setDepartureLat: (value: string) => void
+	setDepartureLon: (value: string) => void
+	setDestinationLat: (value: string) => void
+	setDestinationLon: (value: string) => void
 	setIceClass: (value: string) => void
 	setFuelType: (value: string) => void
 	setWeight: (key: WeightKey, value: number) => void
@@ -40,10 +40,10 @@ interface InputBarContextValue extends InputBarState {
 }
 
 const DEFAULT_STATE: InputBarState = {
-	departure_lat: 0,
-	departure_lon: 0,
-	destination_lat: 0,
-	destination_lon: 0,
+	departure_lat: '',
+	departure_lon: '',
+	destination_lat: '',
+	destination_lon: '',
 	iceClass: '',
 	fuelType: '',
 	weights: { ...DEFAULT_WEIGHT_VALUES },
@@ -56,19 +56,19 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 	const [metrics, setMetrics] = useState<RouteMetric[]>([])
 	const [loading, setLoading] = useState(false)
 
-	const setDepartureLat = useCallback((value: number) => {
+	const setDepartureLat = useCallback((value: string) => {
 		setState((prev) => ({ ...prev, departure_lat: value }))
 	}, [])
 
-	const setDepartureLon = useCallback((value: number) => {
+	const setDepartureLon = useCallback((value: string) => {
 		setState((prev) => ({ ...prev, departure_lon: value }))
 	}, [])
 
-	const setDestinationLat = useCallback((value: number) => {
+	const setDestinationLat = useCallback((value: string) => {
 		setState((prev) => ({ ...prev, destination_lat: value }))
 	}, [])
 
-	const setDestinationLon = useCallback((value: number) => {
+	const setDestinationLon = useCallback((value: string) => {
 		setState((prev) => ({ ...prev, destination_lon: value }))
 	}, [])
 
@@ -88,7 +88,6 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 			// 나머지 두 개의 키를 찾기
 			const otherKeys = (['fuel', 'blackCarbon', 'risk'] as WeightKey[]).filter(k => k !== key)
 			
-			// 각 키에서 diff/2만큼 빼기
 			const halfDiff = diff / 2
 			const newWeights = {
 				...prev.weights,

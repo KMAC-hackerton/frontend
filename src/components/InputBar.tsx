@@ -60,7 +60,13 @@ const InputBar = () => {
                             label="Departure lat"
                             placeholder="35.04"
                             value={departure_lat}
-                            onChange={(event) => setDepartureLat(Number(event.target.value))}
+                            onChange={(event) => {
+                                const value = event.target.value
+                                // 빈 문자열이거나 유효한 숫자 형식만 허용 (-, -., 123, 123., 123.45 등)
+                                if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
+                                    setDepartureLat(value)
+                                }
+                            }}
                             size="small"
                             fullWidth
                         />
@@ -68,7 +74,12 @@ const InputBar = () => {
                             label="Departure lon"
                             placeholder="129.01"
                             value={departure_lon}
-                            onChange={(event) => setDepartureLon(Number(event.target.value))}
+                            onChange={(event) => {
+                                const value = event.target.value
+                                if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
+                                    setDepartureLon(value)
+                                }
+                            }}
                             size="small"
                             fullWidth
                         />
@@ -76,7 +87,12 @@ const InputBar = () => {
                             label="Destination lat"
                             placeholder="34.39"
                             value={destination_lat}
-                            onChange={(event) => setDestinationLat(Number(event.target.value))}
+                            onChange={(event) => {
+                                const value = event.target.value
+                                if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
+                                    setDestinationLat(value)
+                                }
+                            }}
                             size="small"
                             fullWidth
                         />
@@ -84,7 +100,12 @@ const InputBar = () => {
                             label="Destination lon"
                             placeholder="135.24"
                             value={destination_lon}
-                            onChange={(event) => setDestinationLon(Number(event.target.value))}
+                            onChange={(event) => {
+                                const value = event.target.value
+                                if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
+                                    setDestinationLon(value)
+                                }
+                            }}
                             size="small"
                             fullWidth
                         />
