@@ -15,6 +15,15 @@ const ResultsDisplay = () => {
     const { metrics, loading } = useInputBarContext()
     const hasMetrics = metrics.length > 0
 
+    // 전체 Value의 합계 계산
+    const totalValue = metrics.reduce((sum, metric) => sum + Number(metric.Value), 0)
+
+    // 비율 계산 함수
+    const calculateShare = (value: number): string => {
+        if (totalValue === 0) return '0.00'
+        return ((value / totalValue) * 100).toFixed(2)
+    }
+
     return (
         <Box
             sx={{
@@ -74,8 +83,12 @@ const ResultsDisplay = () => {
                                     <TableCell component="th" scope="row">
                                         {row.Metric}
                                     </TableCell>
-                                    <TableCell align="right">{row.Value.toLocaleString()}</TableCell>
-                                    <TableCell align="right">{toFixed(2)}</TableCell>
+                                    <TableCell align="right">
+                                        {Number(row.Value).toLocaleString()}
+                                    </TableCell>
+                                    <TableCell align="right">
+                                        {calculateShare(Number(row.Value))}
+                                    </TableCell>
                                 </TableRow>
                             ))
                         ) : (
