@@ -10,9 +10,10 @@ import {
     Typography,
 } from '@mui/material'
 import { useInputBarContext } from '../Context/InputBarContext'
+import { getImageUrl } from '../api/predict'
 
 const ResultsDisplay = () => {
-    const { metrics, loading } = useInputBarContext()
+    const { metrics, visualizationFile, loading } = useInputBarContext()
     const hasMetrics = metrics.length > 0
 
     // 전체 Value의 합계 계산
@@ -23,6 +24,9 @@ const ResultsDisplay = () => {
         if (totalValue === 0) return '0.00'
         return ((value / totalValue) * 100).toFixed(2)
     }
+
+    // 이미지 URL 생성
+    const imageUrl = visualizationFile ? getImageUrl(visualizationFile) : null
 
     return (
         <Box
@@ -46,11 +50,33 @@ const ResultsDisplay = () => {
                     justifyContent: 'center',
                     backgroundColor: '#eef3fb',
                     borderRadius: 2,
+                    overflow: 'hidden',
                 }}
             >
-                <Typography variant="subtitle1" color="text.secondary">
-                    Map placeholder
-                </Typography>
+                {loading ? (
+                    <Typography variant="subtitle1" color="text.secondary">
+                        Generating route...
+                    </Typography>
+                ) : imageUrl ? (
+                    <Box
+                        component="img"
+                        src={imageUrl}
+                        alt="Route Visualization"
+                        sx={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'contain',
+                        }}
+                        onError={(e) => {
+                            console.error('Failed to load image')
+                            e.currentTarget.style.display = 'none'
+                        }}
+                    />
+                ) : (
+                    <Typography variant="subtitle1" color="text.secondary">
+                        Map placeholder
+                    </Typography>
+                )}
             </Paper>
 
             <TableContainer

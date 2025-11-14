@@ -40,3 +40,9 @@ export const fetchPrediction = async (requestData: PredictionRequest): Promise<P
 
 	return (await response.json()) as PredictResponse
 }
+
+// 이미지 URL 생성 함수
+export const getImageUrl = (filePath: string): string => {
+	const fileName = filePath.split('/').pop() || ''
+	return `${API_BASE_URL}/api/v1/images/${fileName}`
+}
