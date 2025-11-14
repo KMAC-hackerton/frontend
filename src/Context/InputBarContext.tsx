@@ -149,7 +149,6 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 				w_bc: state.weights.blackCarbon,
 				w_risk: state.weights.risk,
 			}
-			console.log(requestData);
 			const data = await fetchPrediction(requestData)
 			setMetrics(data.cost_summary)
 			setVisualizationFile(data.visualization_file)
