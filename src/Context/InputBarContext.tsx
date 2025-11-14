@@ -16,6 +16,8 @@ export interface InputBarWeights {
 }
 
 export interface InputBarState {
+	start_day: number,
+	goal_day: number,
 	departure_lat: string
 	departure_lon: string
 	destination_lat: string
@@ -28,6 +30,8 @@ export interface InputBarState {
 interface InputBarContextValue extends InputBarState {
 	metrics: RouteMetric[]
 	loading: boolean
+	setStartDay: (value: number) => void
+	setGoalDay: (value: number) => void
 	setDepartureLat: (value: string) => void
 	setDepartureLon: (value: string) => void
 	setDestinationLat: (value: string) => void
@@ -40,6 +44,8 @@ interface InputBarContextValue extends InputBarState {
 }
 
 const DEFAULT_STATE: InputBarState = {
+	start_day: 0,
+	goal_day: 122,
 	departure_lat: '',
 	departure_lon: '',
 	destination_lat: '',
@@ -55,6 +61,14 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 	const [state, setState] = useState<InputBarState>(DEFAULT_STATE)
 	const [metrics, setMetrics] = useState<RouteMetric[]>([])
 	const [loading, setLoading] = useState(false)
+
+	const setStartDay = useCallback((value: number) => {
+		setState((prev) => ({ ...prev, start_day: value }))
+	}, [])
+
+	const setGoalDay = useCallback((value: number) => {
+		setState((prev) => ({ ...prev, goal_day: value }))
+	}, [])
 
 	const setDepartureLat = useCallback((value: string) => {
 		setState((prev) => ({ ...prev, departure_lat: value }))
@@ -118,7 +132,7 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 		try {
 			setLoading(true)
 			const data = await fetchPrediction()
-			setMetrics(data.metrics)
+			setMetrics(data.cost_summary)
 		} catch (error) {
 			console.error(error)
 			setMetrics([])
@@ -140,6 +154,8 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 			...state,
 			metrics,
 			loading,
+			setStartDay,
+			setGoalDay,
 			setDepartureLat,
 			setDepartureLon,
 			setDestinationLat,
