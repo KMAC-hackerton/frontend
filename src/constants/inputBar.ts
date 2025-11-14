@@ -1,9 +1,9 @@
 export type WeightKey = 'fuel' | 'blackCarbon' | 'risk'
 
 export const ICE_CLASSES = [
-  { value: 'HighPC', label: 'PC1 ~ PC5' },
-  { value: 'MediumPC', label: 'PC6 / PC7' },
-  { value: 'NonePC', label: 'Non-Ice Class' },
+  { value: 0.5, label: 'PC1 ~ PC5' },
+  { value: 1.0, label: 'PC6 / PC7' },
+  { value: 2.0, label: 'Non-Ice Class' },
 ] as const
 
 export const FUEL_TYPES = [

@@ -1,4 +1,4 @@
-import { fetchPrediction, type RouteMetric } from '../api/predict'
+import { fetchPrediction, type RouteMetric, type PredictionRequest } from '../api/predict'
 import { DEFAULT_WEIGHT_VALUES, type WeightKey } from '../constants/inputBar'
 import {
 	createContext,
@@ -16,8 +16,8 @@ export interface InputBarWeights {
 }
 
 export interface InputBarState {
-	start_day: number,
-	goal_day: number,
+	start_day: number
+	goal_day: number
 	departure_lat: string
 	departure_lon: string
 	destination_lat: string
@@ -29,6 +29,7 @@ export interface InputBarState {
 
 interface InputBarContextValue extends InputBarState {
 	metrics: RouteMetric[]
+	visualizationFile: string | null
 	loading: boolean
 	setStartDay: (value: number) => void
 	setGoalDay: (value: number) => void
@@ -60,6 +61,7 @@ const InputBarContext = createContext<InputBarContextValue | undefined>(undefine
 export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 	const [state, setState] = useState<InputBarState>(DEFAULT_STATE)
 	const [metrics, setMetrics] = useState<RouteMetric[]>([])
+	const [visualizationFile, setVisualizationFile] = useState<string | null>(null)
 	const [loading, setLoading] = useState(false)
 
 	const setStartDay = useCallback((value: number) => {
@@ -129,17 +131,36 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 		if (loading) {
 			return
 		}
+		
 		try {
 			setLoading(true)
-			const data = await fetchPrediction()
+			
+			// Context state를 API 요청 형식으로 변환
+			const requestData: PredictionRequest = {
+				t_start_idx: state.start_day,
+				t_goal_idx: state.goal_day,
+				lat_start: parseFloat(state.departure_lat) || 0,
+				lon_start: parseFloat(state.departure_lon) || 0,
+				lat_goal: parseFloat(state.destination_lat) || 0,
+				lon_goal: parseFloat(state.destination_lon) || 0,
+				BCF: parseFloat(state.iceClass) || 0, // iceClass를 숫자로 변환
+				fuel_type: state.fuelType,
+				w_fuel: state.weights.fuel,
+				w_bc: state.weights.blackCarbon,
+				w_risk: state.weights.risk,
+			}
+			
+			const data = await fetchPrediction(requestData)
 			setMetrics(data.cost_summary)
+			setVisualizationFile(data.visualization_file)
 		} catch (error) {
-			console.error(error)
+			console.error('Failed to generate results:', error)
 			setMetrics([])
+			setVisualizationFile(null)
 		} finally {
 			setLoading(false)
 		}
-	}, [loading, setLoading, setMetrics])
+	}, [loading, state])
 
 	const resetInputs = useCallback(() => {
 		setState({
@@ -147,12 +168,14 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 			weights: { ...DEFAULT_WEIGHT_VALUES },
 		})
 		setMetrics([])
-	}, [setState, setMetrics])
+		setVisualizationFile(null)
+	}, [])
 
 	const contextValue = useMemo<InputBarContextValue>(
 		() => ({
 			...state,
 			metrics,
+			visualizationFile,
 			loading,
 			setStartDay,
 			setGoalDay,
@@ -166,7 +189,23 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 			resetInputs,
 			generateResults,
 		}),
-		[state, metrics, loading, setDepartureLat, setDepartureLon, setDestinationLat, setDestinationLon, setIceClass, setFuelType, setWeight, resetInputs, generateResults],
+		[
+			state,
+			metrics,
+			visualizationFile,
+			loading,
+			setStartDay,
+			setGoalDay,
+			setDepartureLat,
+			setDepartureLon,
+			setDestinationLat,
+			setDestinationLon,
+			setIceClass,
+			setFuelType,
+			setWeight,
+			resetInputs,
+			generateResults,
+		],
 	)
 
 	return <InputBarContext.Provider value={contextValue}>{children}</InputBarContext.Provider>
@@ -186,4 +225,3 @@ export const useInputWeights = () => {
 	const { weights, setWeight } = useInputBarContext()
 	return { weights, setWeight }
 }
-
