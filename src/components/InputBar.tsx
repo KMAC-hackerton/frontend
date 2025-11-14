@@ -14,6 +14,7 @@ import {
 import RoomIcon from '@mui/icons-material/Room'
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat'
 import BarChartIcon from '@mui/icons-material/BarChart'
+import SendIcon from '@mui/icons-material/Send'
 import type { SelectChangeEvent } from '@mui/material/Select'
 import { useInputBarContext } from '../Context/InputBarContext'
 import {
@@ -247,14 +248,30 @@ const InputBar = () => {
                         </Stack>
                     </Paper>
                 </Stack>
-                <Divider />
                 <Button
                     variant="contained"
                     size="large"
                     onClick={generateResults}
                     disabled={loading}
+                    startIcon={<SendIcon />}
+                    sx={{
+                        background: 'linear-gradient(90deg, #00BCD4 0%, #2196F3 100%)',
+                        color: 'white',
+                        fontWeight: 600,
+                        py: 1.5,
+                        textTransform: 'uppercase',
+                        boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)',
+                        '&:hover': {
+                            background: 'linear-gradient(90deg, #00ACC1 0%, #1976D2 100%)',
+                            boxShadow: '0 6px 16px rgba(33, 150, 243, 0.4)',
+                        },
+                        '&:disabled': {
+                            background: 'linear-gradient(90deg, #B0BEC5 0%, #90A4AE 100%)',
+                            color: 'white',
+                        }
+                    }}
                 >
-                    {loading ? 'Generating...' : 'Generate'}
+                    {loading ? 'Generating...' : 'Generate Optimal Route'}
                 </Button>
             </Stack>
         </Box>
