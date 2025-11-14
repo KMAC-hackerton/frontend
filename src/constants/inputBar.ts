@@ -1,28 +1,26 @@
-export type WeightKey = 'fuel' | 'blackCarbon' | 'noise' | 'risk'
+export type WeightKey = 'fuel' | 'blackCarbon' | 'risk'
 
-export const VESSEL_TYPES = [
-  { value: 'container', label: 'Container Ship' },
-  { value: 'bulk', label: 'Bulk Carrier' },
-  { value: 'tanker', label: 'Tanker' },
-  { value: 'research', label: 'Research Vessel' },
+export const ICE_CLASSES = [
+  { value: 'HighPC', label: 'PC1 ~ PC5' },
+  { value: 'MediumPC', label: 'PC6 / PC7' },
+  { value: 'NonePC', label: 'Non-Ice Class' },
 ] as const
 
-export const VESSEL_SIZES = [
-  { value: 'small', label: 'Small' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'large', label: 'Large' },
+export const FUEL_TYPES = [
+  { value: 'MGO', label: 'MGO' },
+  { value: 'LSFO', label: 'LSFO' },
+  { value: 'LNG', label: 'LNG'},
+  { value: 'eMeOH', label: 'eMeOH' },
 ] as const
 
 export const WEIGHT_LABELS: Record<WeightKey, string> = {
   fuel: 'Fuel',
   blackCarbon: 'Black Carbon',
-  noise: 'Noise',
   risk: 'Risk',
 }
 
 export const DEFAULT_WEIGHT_VALUES: Record<WeightKey, number> = {
   fuel: 60,
   blackCarbon: 20,
-  noise: 10,
-  risk: 10,
+  risk: 20,
 }

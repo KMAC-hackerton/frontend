@@ -13,8 +13,8 @@ import {
 import type { SelectChangeEvent } from '@mui/material/Select'
 import { useInputBarContext } from '../Context/InputBarContext'
 import {
-    VESSEL_SIZES,
-    VESSEL_TYPES,
+    ICE_CLASSES,
+    FUEL_TYPES,
     WEIGHT_LABELS,
     type WeightKey,
 } from '../constants/inputBar'
@@ -22,14 +22,18 @@ import WeightSlider from './WeightSlider'
 
 const InputBar = () => {
     const {
-        departure,
-        destination,
-        vesselType,
-        vesselSize,
-        setDeparture,
-        setDestination,
-        setVesselType,
-        setVesselSize,
+        departure_lat,
+        departure_lon,
+        destination_lat,
+        destination_lon,
+        iceClass,
+        fuelType,
+        setDepartureLat,
+        setDepartureLon,
+        setDestinationLat,
+        setDestinationLon,
+        setIceClass,
+        setFuelType,
         generateResults,
         loading,
     } = useInputBarContext()
@@ -53,18 +57,34 @@ const InputBar = () => {
                 <Stack spacing={3}>
                     <Stack spacing={2}>
                         <TextField
-                            label="Departure"
-                            placeholder="Busan"
-                            value={departure}
-                            onChange={(event) => setDeparture(event.target.value)}
+                            label="Departure lat"
+                            placeholder="35.04"
+                            value={departure_lat}
+                            onChange={(event) => setDepartureLat(Number(event.target.value))}
                             size="small"
                             fullWidth
                         />
                         <TextField
-                            label="Destination"
-                            placeholder="Osaka"
-                            value={destination}
-                            onChange={(event) => setDestination(event.target.value)}
+                            label="Departure lon"
+                            placeholder="129.01"
+                            value={departure_lon}
+                            onChange={(event) => setDepartureLon(Number(event.target.value))}
+                            size="small"
+                            fullWidth
+                        />
+                        <TextField
+                            label="Destination lat"
+                            placeholder="34.39"
+                            value={destination_lat}
+                            onChange={(event) => setDestinationLat(Number(event.target.value))}
+                            size="small"
+                            fullWidth
+                        />
+                        <TextField
+                            label="Destination lon"
+                            placeholder="135.24"
+                            value={destination_lon}
+                            onChange={(event) => setDestinationLon(Number(event.target.value))}
                             size="small"
                             fullWidth
                         />
@@ -76,14 +96,14 @@ const InputBar = () => {
                         </Typography>
                         <Stack direction="row" spacing={1.5}>
                             <FormControl size="small" fullWidth>
-                                <InputLabel id="vessel-type-label">Type</InputLabel>
+                                <InputLabel id="ice-class-label">Ice Class</InputLabel>
                                 <Select
-                                    labelId="vessel-type-label"
-                                    value={vesselType}
-                                    label="Type"
-                                    onChange={handleSelectChange(setVesselType)}
+                                    labelId="ice-class-label"
+                                    value={iceClass}
+                                    label="Ice Class"
+                                    onChange={handleSelectChange(setIceClass)}
                                 >
-                                    {VESSEL_TYPES.map((option) => (
+                                    {ICE_CLASSES.map((option) => (
                                         <MenuItem key={option.value} value={option.value}>
                                             {option.label}
                                         </MenuItem>
@@ -91,14 +111,14 @@ const InputBar = () => {
                                 </Select>
                             </FormControl>
                             <FormControl size="small" fullWidth>
-                                <InputLabel id="vessel-size-label">Size</InputLabel>
+                                <InputLabel id="fuel-type-label">Fuel Type</InputLabel>
                                 <Select
-                                    labelId="vessel-size-label"
-                                    value={vesselSize}
-                                    label="Size"
-                                    onChange={handleSelectChange(setVesselSize)}
+                                    labelId="fuel-type-label"
+                                    value={fuelType}
+                                    label="Fuel Type"
+                                    onChange={handleSelectChange(setFuelType)}
                                 >
-                                    {VESSEL_SIZES.map((option) => (
+                                    {FUEL_TYPES.map((option) => (
                                         <MenuItem key={option.value} value={option.value}>
                                             {option.label}
                                         </MenuItem>

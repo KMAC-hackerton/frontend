@@ -12,35 +12,40 @@ import {
 export interface InputBarWeights {
 	fuel: number
 	blackCarbon: number
-	noise: number
 	risk: number
 }
 
 export interface InputBarState {
-	departure: string
-	destination: string
-	vesselType: string
-	vesselSize: string
+	departure_lat: number
+	departure_lon: number
+	destination_lat: number
+	destination_lon: number
+	iceClass: string
+	fuelType: string
 	weights: InputBarWeights
 }
 
 interface InputBarContextValue extends InputBarState {
 	metrics: RouteMetric[]
 	loading: boolean
-	setDeparture: (value: string) => void
-	setDestination: (value: string) => void
-	setVesselType: (value: string) => void
-	setVesselSize: (value: string) => void
+	setDepartureLat: (value: number) => void
+	setDepartureLon: (value: number) => void
+	setDestinationLat: (value: number) => void
+	setDestinationLon: (value: number) => void
+	setIceClass: (value: string) => void
+	setFuelType: (value: string) => void
 	setWeight: (key: WeightKey, value: number) => void
 	resetInputs: () => void
 	generateResults: () => Promise<void>
 }
 
 const DEFAULT_STATE: InputBarState = {
-	departure: '',
-	destination: '',
-	vesselType: '',
-	vesselSize: '',
+	departure_lat: 0,
+	departure_lon: 0,
+	destination_lat: 0,
+	destination_lon: 0,
+	iceClass: '',
+	fuelType: '',
 	weights: { ...DEFAULT_WEIGHT_VALUES },
 }
 
@@ -51,30 +56,60 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 	const [metrics, setMetrics] = useState<RouteMetric[]>([])
 	const [loading, setLoading] = useState(false)
 
-	const setDeparture = useCallback((value: string) => {
-		setState((prev) => ({ ...prev, departure: value }))
+	const setDepartureLat = useCallback((value: number) => {
+		setState((prev) => ({ ...prev, departure_lat: value }))
 	}, [])
 
-	const setDestination = useCallback((value: string) => {
-		setState((prev) => ({ ...prev, destination: value }))
+	const setDepartureLon = useCallback((value: number) => {
+		setState((prev) => ({ ...prev, departure_lon: value }))
 	}, [])
 
-	const setVesselType = useCallback((value: string) => {
-		setState((prev) => ({ ...prev, vesselType: value }))
+	const setDestinationLat = useCallback((value: number) => {
+		setState((prev) => ({ ...prev, destination_lat: value }))
 	}, [])
 
-	const setVesselSize = useCallback((value: string) => {
-		setState((prev) => ({ ...prev, vesselSize: value }))
+	const setDestinationLon = useCallback((value: number) => {
+		setState((prev) => ({ ...prev, destination_lon: value }))
+	}, [])
+
+	const setIceClass = useCallback((value: string) => {
+		setState((prev) => ({ ...prev, iceClass: value }))
+	}, [])
+
+	const setFuelType = useCallback((value: string) => {
+		setState((prev) => ({ ...prev, fuelType: value }))
 	}, [])
 
 	const setWeight = useCallback((key: WeightKey, value: number) => {
-		setState((prev) => ({
-			...prev,
-			weights: {
+		setState((prev) => {
+			const oldValue = prev.weights[key]
+			const diff = value - oldValue
+			
+			// 나머지 두 개의 키를 찾기
+			const otherKeys = (['fuel', 'blackCarbon', 'risk'] as WeightKey[]).filter(k => k !== key)
+			
+			// 각 키에서 diff/2만큼 빼기
+			const halfDiff = diff / 2
+			const newWeights = {
 				...prev.weights,
 				[key]: value,
-			},
-		}))
+				[otherKeys[0]]: Math.max(0, Math.min(100, prev.weights[otherKeys[0]] - halfDiff)),
+				[otherKeys[1]]: Math.max(0, Math.min(100, prev.weights[otherKeys[1]] - halfDiff)),
+			}
+			
+			// 합이 정확히 100이 되도록 미세 조정
+			const sum = newWeights[otherKeys[0]] + newWeights[otherKeys[1]] + newWeights[key]
+			if (sum !== 100) {
+				const adjustment = (100 - sum) / 2
+				newWeights[otherKeys[0]] = Math.max(0, Math.min(100, newWeights[otherKeys[0]] + adjustment))
+				newWeights[otherKeys[1]] = Math.max(0, Math.min(100, newWeights[otherKeys[1]] + adjustment))
+			}
+			
+			return {
+				...prev,
+				weights: newWeights,
+			}
+		})
 	}, [])
 
 	const generateResults = useCallback(async () => {
@@ -106,15 +141,17 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 			...state,
 			metrics,
 			loading,
-			setDeparture,
-			setDestination,
-			setVesselType,
-			setVesselSize,
+			setDepartureLat,
+			setDepartureLon,
+			setDestinationLat,
+			setDestinationLon,
+			setIceClass,
+			setFuelType,
 			setWeight,
 			resetInputs,
 			generateResults,
 		}),
-		[state, metrics, loading, setDeparture, setDestination, setVesselType, setVesselSize, setWeight, resetInputs, generateResults],
+		[state, metrics, loading, setDepartureLat, setDepartureLon, setDestinationLat, setDestinationLon, setIceClass, setFuelType, setWeight, resetInputs, generateResults],
 	)
 
 	return <InputBarContext.Provider value={contextValue}>{children}</InputBarContext.Provider>
