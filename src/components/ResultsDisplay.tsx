@@ -70,12 +70,12 @@ const ResultsDisplay = () => {
                             </TableRow>
                         ) : hasMetrics ? (
                             metrics.map((row) => (
-                                <TableRow key={row.id} hover>
+                                <TableRow key={row.Metric} hover>
                                     <TableCell component="th" scope="row">
-                                        {row.metric}
+                                        {row.Metric}
                                     </TableCell>
-                                    <TableCell align="right">{row.value.toLocaleString()}</TableCell>
-                                    <TableCell align="right">{row.share.toFixed(2)}</TableCell>
+                                    <TableCell align="right">{row.Value.toLocaleString()}</TableCell>
+                                    <TableCell align="right">{toFixed(2)}</TableCell>
                                 </TableRow>
                             ))
                         ) : (
