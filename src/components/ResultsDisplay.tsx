@@ -10,10 +10,9 @@ import {
     Typography,
 } from '@mui/material'
 import { useInputBarContext } from '../Context/InputBarContext'
-import { getImageUrl } from '../api/predict'
 
 const ResultsDisplay = () => {
-    const { metrics, visualizationFile, loading } = useInputBarContext()
+    const { metrics, imageUrl, loading } = useInputBarContext()
     const hasMetrics = metrics.length > 0
 
     // 전체 Value의 합계 계산
@@ -24,9 +23,6 @@ const ResultsDisplay = () => {
         if (totalValue === 0) return '0.00'
         return ((value / totalValue) * 100).toFixed(2)
     }
-
-    // 이미지 URL 생성
-    const imageUrl = visualizationFile ? getImageUrl(visualizationFile) : null
 
     return (
         <Box

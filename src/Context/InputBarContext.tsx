@@ -16,8 +16,7 @@ export interface InputBarWeights {
 }
 
 export interface InputBarState {
-	start_day: number
-	goal_day: number
+	due_date: number
 	departure_lat: string
 	departure_lon: string
 	destination_lat: string
@@ -29,10 +28,9 @@ export interface InputBarState {
 
 interface InputBarContextValue extends InputBarState {
 	metrics: RouteMetric[]
-	visualizationFile: string | null
+	imageUrl: string | null
 	loading: boolean
-	setStartDay: (value: number) => void
-	setGoalDay: (value: number) => void
+	setDueDate: (value: number) => void
 	setDepartureLat: (value: string) => void
 	setDepartureLon: (value: string) => void
 	setDestinationLat: (value: string) => void
@@ -45,8 +43,7 @@ interface InputBarContextValue extends InputBarState {
 }
 
 const DEFAULT_STATE: InputBarState = {
-	start_day: 0,
-	goal_day: 122,
+	due_date: 122,
 	departure_lat: '',
 	departure_lon: '',
 	destination_lat: '',
@@ -61,15 +58,12 @@ const InputBarContext = createContext<InputBarContextValue | undefined>(undefine
 export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 	const [state, setState] = useState<InputBarState>(DEFAULT_STATE)
 	const [metrics, setMetrics] = useState<RouteMetric[]>([])
-	const [visualizationFile, setVisualizationFile] = useState<string | null>(null)
+	const [imageUrl, setImageUrl] = useState<string | null>(null)
 	const [loading, setLoading] = useState(false)
 
-	const setStartDay = useCallback((value: number) => {
-		setState((prev) => ({ ...prev, start_day: value }))
-	}, [])
 
-	const setGoalDay = useCallback((value: number) => {
-		setState((prev) => ({ ...prev, goal_day: value }))
+	const setDueDate = useCallback((value: number) => {
+		setState((prev) => ({ ...prev, due_date: value }))
 	}, [])
 
 	const setDepartureLat = useCallback((value: string) => {
@@ -137,8 +131,8 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 			
 			// Context state를 API 요청 형식으로 변환
 			const requestData: PredictionRequest = {
-				t_start_idx: state.start_day,
-				t_goal_idx: state.goal_day,
+				t_start_idx: 0,
+				t_goal_idx: state.due_date,
 				lat_start: parseFloat(state.departure_lat) || 0,
 				lon_start: parseFloat(state.departure_lon) || 0,
 				lat_goal: parseFloat(state.destination_lat) || 0,
@@ -149,13 +143,15 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 				w_bc: state.weights.blackCarbon,
 				w_risk: state.weights.risk,
 			}
-			const data = await fetchPrediction(requestData)
-			setMetrics(data.cost_summary)
-			setVisualizationFile(data.visualization_file)
+		console.log('Request Data:', requestData)
+		const data = await fetchPrediction(requestData)
+		console.log('Response Data:', data)
+		setMetrics(data.cost_summary)
+		setImageUrl(data.imageUrl)
 		} catch (error) {
 			console.error('Failed to generate results:', error)
 			setMetrics([])
-			setVisualizationFile(null)
+			setImageUrl(null)
 		} finally {
 			setLoading(false)
 		}
@@ -167,17 +163,16 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 			weights: { ...DEFAULT_WEIGHT_VALUES },
 		})
 		setMetrics([])
-		setVisualizationFile(null)
+		setImageUrl(null)
 	}, [])
 
 	const contextValue = useMemo<InputBarContextValue>(
 		() => ({
 			...state,
 			metrics,
-			visualizationFile,
+			imageUrl,
 			loading,
-			setStartDay,
-			setGoalDay,
+			setDueDate,
 			setDepartureLat,
 			setDepartureLon,
 			setDestinationLat,
@@ -191,10 +186,9 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 		[
 			state,
 			metrics,
-			visualizationFile,
+			imageUrl,
 			loading,
-			setStartDay,
-			setGoalDay,
+			setDueDate,
 			setDepartureLat,
 			setDepartureLon,
 			setDestinationLat,

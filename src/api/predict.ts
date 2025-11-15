@@ -21,7 +21,7 @@ export interface PredictionRequest {
 }
 
 export interface PredictResponse {
-	visualization_file: string
+	imageUrl: string
 	cost_summary: RouteMetric[]
 }
 
@@ -38,11 +38,18 @@ export const fetchPrediction = async (requestData: PredictionRequest): Promise<P
 		throw new Error('Failed to load prediction data')
 	}
 
-	return (await response.json()) as PredictResponse
-}
+	// X-Cost-Summary 헤더에서 cost summary 추출
+	const costSummaryHeader = response.headers.get('X-Cost-Summary')
+	console.log('X-Cost-Summary Header:', costSummaryHeader)
+	const cost_summary: RouteMetric[] = costSummaryHeader ? JSON.parse(costSummaryHeader) : []
+	console.log('Parsed cost_summary:', cost_summary)
 
-// 이미지 URL 생성 함수
-export const getImageUrl = (filePath: string): string => {
-	const fileName = filePath.split('/').pop() || ''
-	return `${API_BASE_URL}/api/v1/images/${fileName}`
+	// 이미지 blob을 URL로 변환
+	const imageBlob = await response.blob()
+	const imageUrl = URL.createObjectURL(imageBlob)
+
+	return {
+		imageUrl,
+		cost_summary,
+	}
 }

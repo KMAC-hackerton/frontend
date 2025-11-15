@@ -10,6 +10,7 @@ import {
     TextField,
     Typography,
     Paper,
+    FormHelperText,
 } from '@mui/material'
 import RoomIcon from '@mui/icons-material/Room'
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat'
@@ -24,15 +25,18 @@ import {
     type WeightKey,
 } from '../constants/inputBar'
 import WeightSlider from './WeightSlider'
+import { useState } from 'react'
 
 const InputBar = () => {
     const {
+        due_date,
         departure_lat,
         departure_lon,
         destination_lat,
         destination_lon,
         iceClass,
         fuelType,
+        setDueDate,
         setDepartureLat,
         setDepartureLon,
         setDestinationLat,
@@ -43,8 +47,54 @@ const InputBar = () => {
         loading,
     } = useInputBarContext()
 
+    // 유효성 검사 상태
+    const [errors, setErrors] = useState({
+        dueDate: '',
+        departureLat: '',
+        departureLon: '',
+        destinationLat: '',
+        destinationLon: '',
+    })
+
+    // 유효성 검사 함수
+    const validateDueDate = (value: number) => {
+        if (value > 122) {
+            return 'Due date must be 122 or less'
+        }
+        return ''
+    }
+
+    const validateLat = (value: string) => {
+        const num = parseFloat(value)
+        if (value !== '' && (isNaN(num) || num < 60 || num > 90)) {
+            return 'Latitude must be between 60 and 90'
+        }
+        return ''
+    }
+
+    const validateLon = (value: string) => {
+        const num = parseFloat(value)
+        if (value !== '' && (isNaN(num) || num < -180 || num > 180)) {
+            return 'Longitude must be between -180 and 180'
+        }
+        return ''
+    }
+
     const handleSelectChange = (setter: (value: string) => void) => (event: SelectChangeEvent<string>) => {
         setter(event.target.value)
+    }
+
+    // 모든 입력값이 유효한지 확인
+    const isFormValid = () => {
+        // 에러가 하나라도 있으면 invalid
+        if (Object.values(errors).some(error => error !== '')) {
+            return false
+        }
+        // 필수 입력값이 비어있으면 invalid
+        if (!departure_lat || !departure_lon || !destination_lat || !destination_lon) {
+            return false
+        }
+        return true
     }
 
     return (
@@ -93,59 +143,123 @@ const InputBar = () => {
                                 <Typography variant="h6" fontWeight={600}>Route Configuration</Typography>
                             </Box>
                             <Divider/>
-                            <TextField
-                                label="Departure lat"
-                                placeholder="35.04"
-                                value={departure_lat}
-                                onChange={(event) => {
-                                    const value = event.target.value
-                                    // 빈 문자열이거나 유효한 숫자 형식만 허용 (-, -., 123, 123., 123.45 등)
-                                    if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
-                                        setDepartureLat(value)
-                                    }
-                                }}
-                                size="small"
-                                fullWidth
-                            />
-                            <TextField
-                                label="Departure lon"
-                                placeholder="129.01"
-                                value={departure_lon}
-                                onChange={(event) => {
-                                    const value = event.target.value
-                                    if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
-                                        setDepartureLon(value)
-                                    }
-                                }}
-                                size="small"
-                                fullWidth
-                            />
-                            <TextField
-                                label="Destination lat"
-                                placeholder="34.39"
-                                value={destination_lat}
-                                onChange={(event) => {
-                                    const value = event.target.value
-                                    if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
-                                        setDestinationLat(value)
-                                    }
-                                }}
-                                size="small"
-                                fullWidth
-                            />
-                            <TextField
-                                label="Destination lon"
-                                placeholder="135.24"
-                                value={destination_lon}
-                                onChange={(event) => {
-                                    const value = event.target.value
-                                    if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
-                                        setDestinationLon(value)
-                                    }
-                                }}
-                                size="small"
-                                fullWidth
-                            />
+                            <Box>
+                                <TextField
+                                    label="Due Date (days)"
+                                    placeholder="122"
+                                    value={due_date}
+                                    onChange={(event) => {
+                                        const value = event.target.value
+                                        if (value === '' || /^\d*$/.test(value)) {
+                                            const numValue = value === '' ? 0 : parseInt(value)
+                                            setDueDate(numValue)
+                                            setErrors((prev) => ({
+                                                ...prev,
+                                                dueDate: validateDueDate(numValue),
+                                            }))
+                                        }
+                                    }}
+                                    size="small"
+                                    fullWidth
+                                    error={!!errors.dueDate}
+                                />
+                                {errors.dueDate && (
+                                    <FormHelperText error>{errors.dueDate}</FormHelperText>
+                                )}
+                            </Box>
+                            <Box>
+                                <TextField
+                                    label="Departure lat (°)"
+                                    placeholder="35.04"
+                                    value={departure_lat}
+                                    onChange={(event) => {
+                                        const value = event.target.value
+                                        // 빈 문자열이거나 유효한 숫자 형식만 허용 (-, -., 123, 123., 123.45 등)
+                                        if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
+                                            setDepartureLat(value)
+                                            setErrors((prev) => ({
+                                                ...prev,
+                                                departureLat: validateLat(value),
+                                            }))
+                                        }
+                                    }}
+                                    size="small"
+                                    fullWidth
+                                    error={!!errors.departureLat}
+                                />
+                                {errors.departureLat && (
+                                    <FormHelperText error>{errors.departureLat}</FormHelperText>
+                                )}
+                            </Box>
+                            <Box>
+                                <TextField
+                                    label="Departure lon (°)"
+                                    placeholder="129.01"
+                                    value={departure_lon}
+                                    onChange={(event) => {
+                                        const value = event.target.value
+                                        if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
+                                            setDepartureLon(value)
+                                            setErrors((prev) => ({
+                                                ...prev,
+                                                departureLon: validateLon(value),
+                                            }))
+                                        }
+                                    }}
+                                    size="small"
+                                    fullWidth
+                                    error={!!errors.departureLon}
+                                />
+                                {errors.departureLon && (
+                                    <FormHelperText error>{errors.departureLon}</FormHelperText>
+                                )}
+                            </Box>
+                            <Box>
+                                <TextField
+                                    label="Destination lat (°)"
+                                    placeholder="34.39"
+                                    value={destination_lat}
+                                    onChange={(event) => {
+                                        const value = event.target.value
+                                        if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
+                                            setDestinationLat(value)
+                                            setErrors((prev) => ({
+                                                ...prev,
+                                                destinationLat: validateLat(value),
+                                            }))
+                                        }
+                                    }}
+                                    size="small"
+                                    fullWidth
+                                    error={!!errors.destinationLat}
+                                />
+                                {errors.destinationLat && (
+                                    <FormHelperText error>{errors.destinationLat}</FormHelperText>
+                                )}
+                            </Box>
+                            <Box>
+                                <TextField
+                                    label="Destination lon"
+                                    placeholder="135.24"
+                                    value={destination_lon}
+                                    onChange={(event) => {
+                                        const value = event.target.value
+                                        if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
+                                            setDestinationLon(value)
+                                            setErrors((prev) => ({
+                                                ...prev,
+                                                destinationLon: validateLon(value),
+                                            }))
+                                        }
+                                    }}
+                                    size="small"
+                                    fullWidth
+                                    error={!!errors.destinationLon}
+                                />
+                                {errors.destinationLon && (
+                                    <FormHelperText error>{errors.destinationLon}</FormHelperText>
+                                )}
+                            </Box>
                         </Paper>
                     </Stack>
 
@@ -252,7 +366,7 @@ const InputBar = () => {
                     variant="contained"
                     size="large"
                     onClick={generateResults}
-                    disabled={loading}
+                    disabled={loading || !isFormValid()}
                     startIcon={<SendIcon />}
                     sx={{
                         background: 'linear-gradient(90deg, #00BCD4 0%, #2196F3 100%)',
