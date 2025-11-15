@@ -30,6 +30,7 @@ interface InputBarContextValue extends InputBarState {
 	metrics: RouteMetric[]
 	imageUrl: string | null
 	loading: boolean
+	error: string | null
 	setDueDate: (value: number) => void
 	setDepartureLat: (value: string) => void
 	setDepartureLon: (value: string) => void
@@ -60,6 +61,7 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 	const [metrics, setMetrics] = useState<RouteMetric[]>([])
 	const [imageUrl, setImageUrl] = useState<string | null>(null)
 	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState<string | null>(null)
 
 
 	const setDueDate = useCallback((value: number) => {
@@ -143,13 +145,18 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 				w_bc: state.weights.blackCarbon,
 				w_risk: state.weights.risk,
 			}
-		console.log('Request Data:', requestData)
-		const data = await fetchPrediction(requestData)
-		console.log('Response Data:', data)
-		setMetrics(data.cost_summary)
-		setImageUrl(data.imageUrl)
-		} catch (error) {
+			console.log('Request Data:', requestData)
+			const data = await fetchPrediction(requestData)
+			console.log('Response Data:', data)
+			setMetrics(data.cost_summary)
+			setImageUrl(data.imageUrl)
+		} catch (error: any) {
 			console.error('Failed to generate results:', error)
+			if (error.message.includes('404') || error.message.includes('not found')) {
+				setError('No route found. Please try different coordinates or parameters.')
+			} else {
+				setError('Failed to generate route. Please try again.')
+			}
 			setMetrics([])
 			setImageUrl(null)
 		} finally {
@@ -164,6 +171,7 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 		})
 		setMetrics([])
 		setImageUrl(null)
+		setError(null)
 	}, [])
 
 	const contextValue = useMemo<InputBarContextValue>(
@@ -172,6 +180,7 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 			metrics,
 			imageUrl,
 			loading,
+			error,
 			setDueDate,
 			setDepartureLat,
 			setDepartureLon,
@@ -188,6 +197,7 @@ export const InputBarProvider = ({ children }: { children: ReactNode }) => {
 			metrics,
 			imageUrl,
 			loading,
+			error,
 			setDueDate,
 			setDepartureLat,
 			setDepartureLon,

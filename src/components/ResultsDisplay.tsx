@@ -10,10 +10,14 @@ import {
     Typography,
 } from '@mui/material'
 import { useInputBarContext } from '../Context/InputBarContext'
+import ExploreIcon from '@mui/icons-material/Explore'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 
 const ResultsDisplay = () => {
-    const { metrics, imageUrl, loading } = useInputBarContext()
+    const { metrics, imageUrl, loading, error } = useInputBarContext()
     const hasMetrics = metrics.length > 0
+
+    console.log('ResultsDisplay state:', { imageUrl, loading, error, metricsCount: metrics.length })
 
     // 전체 Value의 합계 계산
     const totalValue = metrics.reduce((sum, metric) => sum + Number(metric.Value), 0)
@@ -53,6 +57,16 @@ const ResultsDisplay = () => {
                     <Typography variant="subtitle1" color="text.secondary">
                         Generating route...
                     </Typography>
+                ) : error ? (
+                    <Box sx={{ textAlign: 'center' }}>
+                        <ErrorOutlineIcon sx={{ fontSize: 48, color: '#f44336', mb: 2 }} />
+                        <Typography variant="h6" color="error" gutterBottom>
+                            Route Generation Failed
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            {error}
+                        </Typography>
+                    </Box>
                 ) : imageUrl ? (
                     <Box
                         component="img"
@@ -69,9 +83,15 @@ const ResultsDisplay = () => {
                         }}
                     />
                 ) : (
-                    <Typography variant="subtitle1" color="text.secondary">
-                        Map placeholder
-                    </Typography>
+                    <Box sx={{ textAlign: 'center' }}>
+                        <ExploreIcon sx={{ fontSize: 64, color: '#90A4AE', mb: 2 }} />
+                        <Typography variant="h6" color="text.secondary" gutterBottom>
+                            Ready to Find Your Optimal Route
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Configure your route parameters and click "Generate Optimal Route"
+                        </Typography>
+                    </Box>
                 )}
             </Paper>
 

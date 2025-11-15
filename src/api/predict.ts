@@ -35,7 +35,10 @@ export const fetchPrediction = async (requestData: PredictionRequest): Promise<P
 	})
 
 	if (!response.ok) {
-		throw new Error('Failed to load prediction data')
+		if (response.status === 404) {
+			throw new Error('404 not found - No route available for the given parameters')
+		}
+		throw new Error(`Failed to load prediction data: ${response.status} ${response.statusText}`)
 	}
 
 	// X-Cost-Summary 헤더에서 cost summary 추출
